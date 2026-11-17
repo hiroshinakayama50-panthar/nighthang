@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#1E4D44">
+<meta name="theme-color" content="#B9501A">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="NIGHTHANG">
@@ -17,26 +17,26 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
 <style>
-/* Layout: 条件フォーム(左・スマホでは上) → 今夜のメニュー(右・下)。木製ボードとチョークの色。 */
+/* Layout: 条件フォーム(左・スマホでは上) → 今夜のメニュー(右・下)。木製ボードと夕焼けのオレンジ。 */
 :root{
-  --bg:#EDF0EE; --surface:#FBFCFB; --ink:#18201D; --muted:#5D6B66; --line:#D5DCD8;
-  --accent:#2D6A57; --accent-ink:#FFFFFF; --accent-soft:#DCEAE4;
+  --bg:#F3EFEB; --surface:#FDFBF9; --ink:#231A15; --muted:#6F6158; --line:#E3D8CF;
+  --accent:#B9501A; --accent-ink:#FFFFFF; --accent-soft:#F8E3D4;
   --wood:#E3CFAE; --wood-edge:#C2A67A; --hold:#F5EAD6; --hatch:#A8957A;
-  --warn:#8F5400; --warn-soft:#FBEBD0; --stop:#B3261E; --stop-soft:#FBE1DE;
+  --warn:#7A5E00; --warn-soft:#F5EBC6; --stop:#B3261E; --stop-soft:#FBE1DE;
   --f-body:"Zen Kaku Gothic New","Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP",system-ui,sans-serif;
   --f-mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
   --r:14px;
 }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
-  --bg:#101513; --surface:#19201D; --ink:#E5EAE7; --muted:#9AA8A2; --line:#2B3531;
-  --accent:#7CC6AC; --accent-ink:#0E1A15; --accent-soft:#1E3630;
+  --bg:#16110E; --surface:#211A16; --ink:#EFE6E0; --muted:#AC9C91; --line:#3A2F28;
+  --accent:#F2995A; --accent-ink:#2A1306; --accent-soft:#3D2517;
   --wood:#5B4A32; --wood-edge:#43361F; --hold:#7A6648; --hatch:#3A3020;
-  --warn:#E8B460; --warn-soft:#38290F; --stop:#F2867D; --stop-soft:#3D1D1A; color-scheme:dark }}
+  --warn:#E3C25E; --warn-soft:#352B0E; --stop:#F2867D; --stop-soft:#3D1D1A; color-scheme:dark }}
 :root[data-theme="dark"]{
-  --bg:#101513; --surface:#19201D; --ink:#E5EAE7; --muted:#9AA8A2; --line:#2B3531;
-  --accent:#7CC6AC; --accent-ink:#0E1A15; --accent-soft:#1E3630;
+  --bg:#16110E; --surface:#211A16; --ink:#EFE6E0; --muted:#AC9C91; --line:#3A2F28;
+  --accent:#F2995A; --accent-ink:#2A1306; --accent-soft:#3D2517;
   --wood:#5B4A32; --wood-edge:#43361F; --hold:#7A6648; --hatch:#3A3020;
-  --warn:#E8B460; --warn-soft:#38290F; --stop:#F2867D; --stop-soft:#3D1D1A; color-scheme:dark }
+  --warn:#E3C25E; --warn-soft:#352B0E; --stop:#F2867D; --stop-soft:#3D1D1A; color-scheme:dark }
 
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;
