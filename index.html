@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1E4D44">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="NIGHTHANG">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<style>html{color-scheme:light}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>NIGHTHANG</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<style>
+/* Layout: 条件フォーム(左・スマホでは上) → 今夜のメニュー(右・下)。木製ボードとチョークの色。 */
+:root{
+  --bg:#EDF0EE; --surface:#FBFCFB; --ink:#18201D; --muted:#5D6B66; --line:#D5DCD8;
+  --accent:#2D6A57; --accent-ink:#FFFFFF; --accent-soft:#DCEAE4;
+  --wood:#E3CFAE; --wood-edge:#C2A67A; --hold:#F5EAD6; --hatch:#A8957A;
+  --warn:#8F5400; --warn-soft:#FBEBD0; --stop:#B3261E; --stop-soft:#FBE1DE;
+  --f-body:"Zen Kaku Gothic New","Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#101513; --surface:#19201D; --ink:#E5EAE7; --muted:#9AA8A2; --line:#2B3531;
+  --accent:#7CC6AC; --accent-ink:#0E1A15; --accent-soft:#1E3630;
+  --wood:#5B4A32; --wood-edge:#43361F; --hold:#7A6648; --hatch:#3A3020;
+  --warn:#E8B460; --warn-soft:#38290F; --stop:#F2867D; --stop-soft:#3D1D1A; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#101513; --surface:#19201D; --ink:#E5EAE7; --muted:#9AA8A2; --line:#2B3531;
+  --accent:#7CC6AC; --accent-ink:#0E1A15; --accent-soft:#1E3630;
+  --wood:#5B4A32; --wood-edge:#43361F; --hold:#7A6648; --hatch:#3A3020;
+  --warn:#E8B460; --warn-soft:#38290F; --stop:#F2867D; --stop-soft:#3D1D1A; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;
+  -webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+.wrap{max-width:1080px;margin:0 auto;padding-block:20px 48px;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+header{display:flex;flex-direction:column;gap:2px;margin-bottom:18px}
+.eyebrow{font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+h1{font-family:var(--f-mono);font-size:clamp(26px,7vw,34px);font-weight:600;margin:0;text-wrap:balance;letter-spacing:.08em}
+.layout{display:grid;gap:20px;grid-template-columns:1fr}
+@media (min-width:880px){ .layout{grid-template-columns:minmax(0,360px) minmax(0,1fr);align-items:start}
+  .panel-form{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px)} }
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;min-width:0}
+form{display:flex;flex-direction:column;gap:18px}
+fieldset{border:0;margin:0;padding:0;min-width:0;display:flex;flex-direction:column;gap:8px}
+legend{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.06em;padding:0;margin-bottom:8px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{position:relative;flex:1 1 auto}
+.opt input{position:absolute;opacity:0;inset:0;margin:0;pointer-events:none}
+.opt span{display:flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:8px 12px;
+  border:1px solid var(--line);border-radius:10px;background:var(--bg);font-size:14px;font-weight:500;
+  cursor:pointer;text-align:center;line-height:1.3;user-select:none;-webkit-user-select:none}
+.opt small{display:block;font-size:11px;font-weight:400;color:var(--muted)}
+.opt input:checked + span{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.opt input:checked + span small{color:inherit;opacity:.85}
+.opt input:focus-visible + span{outline:2px solid var(--accent);outline-offset:2px}
+.opt.col span{flex-direction:column;gap:0}
+.opt b{font-weight:inherit}
+.chk span::before{content:"";width:14px;height:14px;border-radius:4px;border:1.5px solid currentColor;flex:none}
+.chk input:checked + span::before{background:var(--accent-ink);box-shadow:inset 0 0 0 2px var(--accent)}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.grid2 .opt span{height:100%}
+.times{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.times label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted);min-width:0}
+input[type=time]{font-family:var(--f-mono);font-size:16px;min-height:44px;width:100%;padding:8px 10px;
+  border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);-webkit-appearance:none;appearance:none}
+input[type=time]:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.hint{font-size:12px;color:var(--muted);margin:0}
+.pain span{border-color:var(--stop);color:var(--stop);background:var(--stop-soft)}
+.pain input:checked + span{background:var(--stop);border-color:var(--stop);color:var(--surface)}
+
+/* result */
+.result{display:flex;flex-direction:column;gap:16px;min-width:0}
+.summary{display:flex;flex-direction:column;gap:12px}
+.mode{display:inline-flex;align-self:flex-start;align-items:center;gap:8px;padding:5px 12px;border-radius:999px;
+  font-weight:700;font-size:14px;background:var(--accent-soft);color:var(--accent)}
+.mode::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}
+.mode.warn{background:var(--warn-soft);color:var(--warn)}
+.mode.stop{background:var(--stop-soft);color:var(--stop)}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--line);border-radius:10px;overflow:hidden;border:1px solid var(--line)}
+@media (min-width:560px){.stats{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.stat{background:var(--surface);padding:10px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.stat b{font-family:var(--f-mono);font-size:19px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1.2}
+.stat span{font-size:11px;color:var(--muted);letter-spacing:.04em}
+.reasons{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+.reasons li{display:flex;gap:8px}
+.reasons li::before{content:"→";font-family:var(--f-mono);color:var(--accent)}
+.alert{border-radius:10px;padding:10px 12px;font-size:13px;background:var(--stop-soft);color:var(--stop);font-weight:500}
+
+.sec{display:flex;flex-direction:column;gap:10px}
+.sec-h{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.sec-h .n{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.sec-h h2{font-size:17px;margin:0;font-weight:700}
+.sec-h .min{margin-left:auto;font-family:var(--f-mono);font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.sec.skip .sec-h h2{color:var(--muted)}
+.skipnote{font-size:13px;color:var(--muted);margin:0;padding:10px 12px;border:1px dashed var(--line);border-radius:10px}
+.items{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.item{border-bottom:1px solid var(--line)}
+.item button{all:unset;box-sizing:border-box;display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:4px 12px;
+  width:100%;padding:12px 2px;cursor:pointer;align-items:start}
+.item button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;border-radius:6px}
+.box{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--line);margin-top:1px;display:grid;place-items:center}
+.item.done .box{background:var(--accent);border-color:var(--accent)}
+.item.done .box::after{content:"";width:6px;height:11px;border:solid var(--accent-ink);border-width:0 2px 2px 0;transform:translateY(-1px) rotate(45deg)}
+.item .nm{font-weight:500;min-width:0}
+.item .dose{font-family:var(--f-mono);font-size:13px;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;padding-top:2px}
+.item .note{grid-column:2 / 4;font-size:12px;color:var(--muted);min-width:0}
+.item.done .nm,.item.done .dose{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line)}
+.tag{display:inline-block;font-size:10px;font-weight:700;padding:1px 6px;border-radius:4px;margin-left:6px;vertical-align:2px;background:var(--warn-soft);color:var(--warn)}
+
+.board{display:flex;flex-direction:column;gap:6px;padding:12px;border-radius:10px;background:var(--bg)}
+.board svg{width:100%;max-width:420px;height:auto;display:block;margin:0 auto}
+.b-base{fill:var(--wood);stroke:var(--wood-edge);stroke-width:2}
+.h-on{fill:var(--accent)}
+.h-idle{fill:var(--hold);stroke:var(--wood-edge);stroke-width:1}
+.h-off{fill:url(#hatch);stroke:var(--wood-edge);stroke-width:1}
+.hatch-line{stroke:var(--hatch);stroke-width:3}
+.h-pin{fill:var(--wood-edge)}
+.board .mm{font-family:var(--f-mono);font-size:7px;fill:var(--muted);text-anchor:middle}
+.board .logo{font-family:var(--f-mono);font-size:7px;letter-spacing:.15em;fill:var(--wood-edge);text-anchor:middle}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;justify-content:center;font-size:11px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.legend .l-on{background:var(--accent)} .legend .l-idle{background:var(--hold);border:1px solid var(--wood-edge)}
+.legend .l-off{background:repeating-linear-gradient(45deg,var(--hatch) 0 2px,var(--wood) 2px 5px)}
+
+.foot{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn{font:inherit;font-weight:700;font-size:14px;min-height:44px;padding:0 18px;border-radius:10px;border:1px solid var(--accent);
+  background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.toast{font-size:13px;color:var(--muted)}
+.rules{font-size:12px;color:var(--muted);margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:2px}
+textarea#copyfall{width:100%;min-height:140px;font-family:var(--f-mono);font-size:12px;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px}
+@media (prefers-reduced-motion:no-preference){ .item .box,.opt span{transition:background .15s,border-color .15s} }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">クライミング日課メニュー · ハングボード · 体幹 · ストレッチ</span>
+    <h1>NIGHTHANG</h1>
+  </header>
+
+  <div class="layout">
+    <section class="panel panel-form" aria-label="今日の条件">
+      <form id="cfg" name="cfg" autocomplete="off">
+        <fieldset>
+          <legend>場所(器具をまとめて設定)</legend>
+          <div class="opts" id="presets">
+            <label class="opt"><input type="radio" name="place" id="p-home" value="home"><span>自宅</span></label>
+            <label class="opt"><input type="radio" name="place" id="p-hotel" value="hotel"><span>ホテル</span></label>
+            <label class="opt"><input type="radio" name="place" id="p-out" value="out"><span>外出先</span></label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>使える器具</legend>
+          <div class="opts">
+            <label class="opt col"><input type="radio" name="board" id="b-none" value="none"><span>ボードなし</span></label>
+            <label class="opt col"><input type="radio" name="board" id="b-bm" value="bm"><span>Beastmaker<small>1000</small></span></label>
+            <label class="opt col"><input type="radio" name="board" id="b-ts" value="ts"><span>Two Stones<small>深さ表記つき</small></span></label>
+          </div>
+          <div class="opts">
+            <label class="opt chk"><input type="checkbox" name="pole" id="f-pole"><span>ストレッチポール</span></label>
+          </div>
+          <div class="grid2">
+            <label class="opt"><input type="radio" name="surface" id="s-mat" value="mat"><span>ヨガマット</span></label>
+            <label class="opt"><input type="radio" name="surface" id="s-floor" value="floor"><span>床のみ</span></label>
+            <label class="opt"><input type="radio" name="surface" id="s-bedhard" value="bedhard"><span>ベッド(硬め)</span></label>
+            <label class="opt"><input type="radio" name="surface" id="s-bedsoft" value="bedsoft"><span>ベッド(柔らかい)</span></label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>今日の活動</legend>
+          <div class="grid2">
+            <label class="opt col"><input type="radio" name="activity" id="a-rest" value="rest"><span>休養・仕事のみ<small>通常の日</small></span></label>
+            <label class="opt col"><input type="radio" name="activity" id="a-light" value="light"><span>軽い運動<small>散歩・ジョグなど</small></span></label>
+            <label class="opt col"><input type="radio" name="activity" id="a-high" value="high"><span>高強度クライミング<small>ボルダ2h〜・外岩・沢</small></span></label>
+            <label class="opt col"><input type="radio" name="activity" id="a-restart" value="restart"><span>空白明け・連登明け<small>軽めから再開</small></span></label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>時間帯</legend>
+          <div class="times">
+            <label>開始<input type="time" name="start" id="t-start" value="20:00"></label>
+            <label>就寝予定<input type="time" name="bed" id="t-bed" value="23:30"></label>
+          </div>
+          <p class="hint" id="bedHint"></p>
+        </fieldset>
+
+        <fieldset>
+          <legend>ハングボードの段階</legend>
+          <div class="opts">
+            <label class="opt col"><input type="radio" name="stage" id="g-jug" value="jug"><span><b id="st-jug-n">ジャグ</b><small id="st-jug-s">奥の大エッジ</small></span></label>
+            <label class="opt col"><input type="radio" name="stage" id="g-p4" value="p4"><span><b id="st-p4-n">4本指</b><small id="st-p4-s">中央ポケット</small></span></label>
+            <label class="opt col"><input type="radio" name="stage" id="g-p32" value="p32"><span><b id="st-p32-n">3本・2本指</b><small id="st-p32-s">手前の浅い列</small></span></label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>指の状態</legend>
+          <div class="opts">
+            <label class="opt chk pain"><input type="checkbox" name="pain" id="f-pain"><span>薬指・中指の第一関節に違和感がある</span></label>
+          </div>
+        </fieldset>
+      </form>
+    </section>
+
+    <section class="result" aria-live="polite">
+      <div class="panel summary" id="summary"></div>
+      <div class="panel" id="menu" style="display:flex;flex-direction:column;gap:22px"></div>
+      <div class="panel" style="display:flex;flex-direction:column;gap:12px">
+        <div class="foot">
+          <button class="btn" type="button" id="copyBtn">メニューをコピー</button>
+          <button class="btn ghost" type="button" id="resetBtn">チェックを外す</button>
+          <span class="toast" id="toast" role="status"></span>
+        </div>
+        <textarea id="copyfall" hidden readonly aria-label="コピー用テキスト"></textarea>
+        <ul class="rules">
+          <li>痛みや指の違和感が出たら、その場で中止する</li>
+          <li>ハングボードは就寝の2〜3時間前までに終える</li>
+          <li>高強度の日の夜はハングボードなし、ストレッチ中心</li>
+          <li>空白明け・連登明けはフルに戻さず軽めから</li>
+        </ul>
+        <p class="hint">NIGHTHANG v1.0</p>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+(function(){
+  const KEY = 'climb-menu-v1';
+  const f = document.forms.cfg;
+  const PRESETS = {
+    home:  {board:'home', pole:true,  surface:'mat'},
+    hotel: {board:'none', pole:false, surface:'bedhard'},
+    out:   {board:'none', pole:false, surface:'floor'}
+  };
+  const DEFAULT = {place:'home', board:'bm', homeBoard:'bm', pole:true, surface:'mat', activity:'rest', start:'20:00', bed:'23:30', stage:'jug', pain:false};
+  // ボードごとのホールド対応(段階キーは共通: jug=基本 / p4=次の段階 / p32=上級)
+  const BOARDS = {
+    bm: {
+      name:'ビーストメーカー1000',
+      stage:{
+        jug:{label:'ジャグ', sub:'上面の両端', name:'ジャグ(上面の両端)', short:'ジャグ'},
+        p4: {label:'4本指', sub:'中段の両端', name:'4本指ポケット(中段の両端)', short:'4本指'},
+        p32:{label:'3本・2本指', sub:'中段の内側', name:'中段の内側のポケットで3本指・2本指を交互', short:'3本・2本指'}
+      },
+      wu1:['ジャグに軽くぶら下がる','足をつけて体重を抜いてもよい'],
+      wu2:['4本指ポケット(軽め)','足で荷重を逃がしながら']
+    },
+    ts: {
+      name:'Two Stones',
+      stage:{
+        jug:{label:'4本指・深め', sub:'下段両端 24mm', name:'下段両端の24mm(4本指・深め)', short:'24mm'},
+        p4: {label:'4本指・浅め', sub:'上段 15mm', name:'上段の15mmエッジ(4本指・浅め)', short:'15mm'},
+        p32:{label:'3本・2本指', sub:'18mm+丸穴', name:'18mm(3本指)と丸穴24mm(2本指)を交互', short:'3本・2本指'}
+      },
+      wu1:['中央30mmに軽くぶら下がる','両手が収まらなければ下段両端24mmで。足をつけて体重を抜いてもよい'],
+      wu2:['下段両端24mm(軽め)','足で荷重を逃がしながら']
+    }
+  };
+  let done = new Set();
+
+  function load(){
+    let s = {};
+    try { s = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch(e) {}
+    if (s.board === true) s.board = 'bm';
+    if (s.board === false) s.board = 'none';
+    s = Object.assign({}, DEFAULT, s);
+    if (!BOARDS[s.board] && s.board !== 'none') s.board = 'bm';
+    if (!BOARDS[s.homeBoard]) s.homeBoard = 'bm';
+    return s;
+  }
+  let homeBoard = 'bm';
+  function save(s){ try { localStorage.setItem(KEY, JSON.stringify(s)); } catch(e) {} }
+
+  function apply(s){
+    homeBoard = s.homeBoard;
+    f.board.value = s.board; f.pole.checked = !!s.pole; f.pain.checked = !!s.pain;
+    f.surface.value = s.surface; f.activity.value = s.activity; f.stage.value = s.stage;
+    f.start.value = s.start; f.bed.value = s.bed;
+    syncPreset();
+  }
+  function read(){
+    return {
+      place: f.place.value, board: f.board.value || 'none', homeBoard, pole: f.pole.checked, pain: f.pain.checked,
+      surface: f.surface.value || 'mat', activity: f.activity.value || 'rest', stage: f.stage.value || 'jug',
+      start: f.start.value || '20:00', bed: f.bed.value || '23:30'
+    };
+  }
+  function syncPreset(){
+    const cur = {board:f.board.value, pole:f.pole.checked, surface:f.surface.value};
+    let match = '';
+    for (const k in PRESETS){ const p = PRESETS[k];
+      const bOk = p.board === 'home' ? cur.board !== 'none' : p.board === cur.board;
+      if (bOk && p.pole===cur.pole && p.surface===cur.surface){ match = k; break; } }
+    document.querySelectorAll('input[name=place]').forEach(r => r.checked = (r.value === match));
+  }
+
+  const toMin = t => { const [h,m] = t.split(':').map(Number); return h*60 + m; };
+  const hhmm = m => { m = ((Math.round(m) % 1440) + 1440) % 1440; return String(Math.floor(m/60)).padStart(2,'0') + ':' + String(m%60).padStart(2,'0'); };
+  const dur = m => { m = Math.max(0, Math.round(m)); const h = Math.floor(m/60), r = m%60; return h ? (r ? `${h}時間${r}分` : `${h}時間`) : `${r}分`; };
+
+  // --- メニュー生成 ---
+  function build(s){
+    const start = toMin(s.start);
+    let toBed = toMin(s.bed) - start; if (toBed <= 0) toBed += 1440;
+    const onBed = s.surface === 'bedhard' || s.surface === 'bedsoft';
+    const reasons = [];
+    const B = BOARDS[s.board] || null;
+    const HB_FULL = (4*7 + 3*180)/60, HB_SHORT = (3*7 + 2*180)/60, WU_HB = 5;
+
+    // ハングボード判定
+    let hb = 'off', hbWhy = '';
+    if (!B) { hbWhy = 'フィンガーボードがないため、ハングボードは休み'; }
+    else if (s.pain) { hbWhy = '指に違和感があるため、ハングボードは中止'; }
+    else if (s.activity === 'high') { hbWhy = '高強度クライミングの日なので、ハングボードはなし'; }
+    else {
+      const bufFull = toBed - WU_HB - HB_FULL, bufShort = toBed - WU_HB - HB_SHORT;
+      if (s.activity === 'restart') {
+        if (bufShort >= 120) { hb = 'restart'; hbWhy = `空白明けなので、${B.stage.jug.short}を3セットだけ(段階は上げない)`; }
+        else { hbWhy = `就寝まで${dur(toBed)}しかないため、ハングボードは省略`; }
+      } else if (bufFull >= 180) { hb = 'full'; hbWhy = `ハングボード後、就寝まで${dur(bufFull)}あるのでフルで実施`; }
+      else if (bufShort >= 120) { hb = 'short'; hbWhy = `就寝まで${dur(toBed)}なので、ハングボードは3セットに短縮`; }
+      else { hbWhy = `就寝まで${dur(toBed)}しかないため、ハングボードは省略して体幹・ストレッチ中心`; }
+    }
+    reasons.push(hbWhy);
+
+    // モード
+    let mode, tone = '';
+    if (s.pain) { mode = '指を休める日'; tone = 'stop'; }
+    else if (s.activity === 'high') { mode = '回復メニュー'; tone = 'warn'; }
+    else if (s.activity === 'restart') { mode = '再開メニュー(軽め)'; tone = 'warn'; }
+    else if (hb === 'full') { mode = 'フルメニュー'; }
+    else if (hb === 'short') { mode = '短縮メニュー'; }
+    else if (B) { mode = '遅い時間のメニュー'; tone = 'warn'; }
+    else { mode = '体幹・ストレッチ'; }
+
+    const it = (name, dose, min, note, tag) => ({name, dose, min, note: note || '', tag: tag || ''});
+    const sections = [];
+
+    // 1 ウォームアップ
+    const wu = [];
+    if (hb !== 'off') {
+      wu.push(it('手首・肩・肘を回す', '1分', 1));
+      wu.push(it(B.wu1[0], '10秒 × 3', 2, B.wu1[1]));
+      if (hb !== 'restart') wu.push(it(B.wu2[0], '10秒 × 2', 2, B.wu2[1]));
+    } else {
+      wu.push(it('関節まわし(首・肩・手首・股関節)', '2分', 2));
+      wu.push(it('キャット&カウ', '10回', 1, onBed ? 'ベッドの上でOK' : ''));
+    }
+    sections.push({title:'ウォームアップ', items:wu});
+
+    // 2 ハングボード
+    if (hb !== 'off') {
+      const st = hb === 'restart' ? 'jug' : s.stage;
+      const sets = hb === 'full' ? 4 : 3;
+      const hbItems = [it(B.stage[st].name, `7秒 × ${sets}セット`, hb === 'full' ? HB_FULL : HB_SHORT, 'セット間の休憩は3分。最後まで余裕があれば次回は段階を上げる')];
+      if (st === 'p32') hbItems[0].note = '3本指と2本指をセットごとに交互。セット間の休憩は3分';
+      hbItems[0].note = B.name + '。' + hbItems[0].note;
+      sections.push({title:'ハングボード', items:hbItems, board: st, boardKey: s.board});
+    } else {
+      sections.push({title:'ハングボード', items:[], skip: B ? hbWhy : 'フィンガーボードなし。今日は体幹とストレッチで組みます'});
+    }
+
+    // 3 体幹
+    const core = [];
+    const floorNote = s.surface === 'floor' ? 'フローリングならタオルを敷く' : '';
+    if (s.activity === 'high') {
+      core.push(it('デッドバグ', '左右10回 × 1', 2, '疲れていれば省略してよい', '任意'));
+      core.push(it('ヒップリフト', '15回 × 1', 1, '', '任意'));
+      if (onBed) core.push(it('仰向けツイスト', '左右30秒', 1, '', '任意'));
+      reasons.push('体幹は軽め。疲労が強ければ省略してストレッチへ');
+    } else if (onBed) {
+      if (s.surface === 'bedsoft') {
+        core.push(it('プランク(手のひらつき)', s.activity==='restart' ? '20秒 × 2' : '30秒 × 3', s.activity==='restart'?2:3, 'ベッドが沈むので短め。腰が落ちたら終了'));
+        reasons.push('柔らかいベッドなので、プランクは手のひらで短めに');
+      } else {
+        core.push(it('プランク(肘つき)', s.activity==='restart' ? '30秒 × 2' : '45秒 × 3', s.activity==='restart'?2:4, 'ベッドの端寄りの硬い場所で'));
+      }
+      core.push(it('デッドバグ', s.activity==='restart' ? '左右8回 × 2' : '左右10回 × 2', 3));
+      core.push(it('ヒップリフト', '15回 × 2', 2));
+      core.push(it('仰向けツイスト', '左右30秒 × 2', 2));
+    } else {
+      const r = s.activity === 'restart';
+      core.push(it('プランク', r ? '45秒 × 2' : '60秒 × 3', r ? 3 : 5, floorNote));
+      core.push(it('サイドプランク', r ? '左右30秒 × 2' : '左右45秒 × 2', r ? 3 : 4, floorNote));
+      core.push(it('デッドバグ', r ? '左右8回 × 2' : '左右10回 × 2', 3));
+      if (hb === 'off' || r) {
+        core.push(it('バードドッグ', '左右10回 × 2', 3));
+        core.push(it('ヒップリフト', '15回 × 2', 2));
+      }
+      if (r) reasons.push('空白明けなので、体幹の秒数とセット数を少なめに');
+    }
+    sections.push({title:'体幹', items:core});
+
+    // 4 クールダウン
+    const cd = [];
+    cd.push(it('前腕・手首ストレッチ', '屈筋・伸筋 各30秒 × 2', 3, 'ハングボードをした日は特に丁寧に'));
+    if (s.pole && !onBed) cd.push(it('ストレッチポールで胸椎リリース', '2〜3分', 3, 'ポールに縦に乗り、腕を開いて胸を広げる'));
+    else cd.push(it('オープンブック(胸椎回旋)', '左右8回', 2, onBed ? 'ベッドの上で横向きに' : ''));
+    if (s.activity === 'high') {
+      cd.push(it('全身ストレッチ(長め)', '股関節・ハム・肩・背中 各60秒', 10, '呼吸をゆっくり。眠くなったらそのまま終えてよい'));
+      cd.push(it('ふくらはぎ・足裏', '各60秒', 2, '外岩・沢の日は特に'));
+      reasons.push('ストレッチを長めにして回復を優先');
+    } else {
+      cd.push(it('全身ストレッチ', '股関節・ハム・肩 各30秒', 5));
+    }
+    sections.push({title:'クールダウン', items:cd});
+
+    if (s.pain) reasons.unshift('違和感が続く・強まる場合は、体幹も含めて中止する');
+
+    const total = sections.reduce((a,sec)=>a + sec.items.reduce((b,i)=>b+i.min,0), 0);
+    const hbEnd = hb !== 'off' ? start + WU_HB + (hb === 'full' ? HB_FULL : HB_SHORT) : null;
+    return {mode, tone, hb, B, sections, reasons, total, start, toBed, hbEnd, end: start + total};
+  }
+
+  // --- ボード図(簡略) ---
+  function boardSVG(key, stage){ return key === 'ts' ? tsSVG(stage) : bmSVG(stage); }
+  function tsSVG(stage){
+    const c = k => k === stage ? 'h-on' : 'h-idle';
+    const mir = (x,w) => 320 - x - w;
+    const pair = (x,y,w,h,rx,k) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" class="${c(k)}"/><rect x="${mir(x,w)}" y="${y}" width="${w}" height="${h}" rx="${rx}" class="${c(k)}"/>`;
+    const lbl = (x,y,t) => `<text x="${x}" y="${y}" class="mm">${t}</text><text x="${320-x}" y="${y}" class="mm">${t}</text>`;
+    return `<div class="board" aria-label="Two Stonesの簡略図。今日使うホールドを色で示す">
+      <svg viewBox="0 0 320 92" role="img">
+        <rect x="4" y="4" width="312" height="84" rx="10" class="b-base"/>
+        ${pair(24,12,24,15,7,'-')}
+        ${pair(78,12,46,15,7,'p4')}
+        <circle cx="56" cy="19.5" r="2.4" class="h-pin"/><circle cx="67" cy="19.5" r="2.4" class="h-pin"/>
+        <circle cx="264" cy="19.5" r="2.4" class="h-pin"/><circle cx="253" cy="19.5" r="2.4" class="h-pin"/>
+        ${pair(17,42,48,20,9,'jug')}
+        ${pair(75,42,24,20,9,'p32')}
+        <circle cx="114" cy="52" r="9.5" class="${c('p32')}"/><circle cx="206" cy="52" r="9.5" class="${c('p32')}"/>
+        <rect x="134" y="42" width="52" height="20" rx="9" class="h-idle"/>
+        ${lbl(36,35,'24')}${lbl(101,35,'15')}
+        ${lbl(41,74,'24')}${lbl(87,74,'18')}${lbl(114,74,'24')}<text x="160" y="74" class="mm">30</text>
+      </svg>
+      <div class="legend"><span><i class="l-on"></i>今日使う</span><span><i class="l-idle"></i>使わない段階</span><span>数字は深さ(mm)</span></div>
+    </div>`;
+  }
+  function bmSVG(stage){
+    const c = k => k === stage ? 'h-on' : 'h-idle';
+    const R = (x,y,w,h,k,rx) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx||6}" class="${k==='off'?'h-off':c(k)}"/>`;
+    const sym = (x,y,w,h,k,rx) => R(x,y,w,h,k,rx) + R(320-x-w,y,w,h,k,rx);
+    return `<div class="board" aria-label="ビーストメーカー1000の簡略図。今日使うホールドを色で示す">
+      <svg viewBox="0 0 320 104" role="img">
+        <defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+          <rect width="6" height="6" fill="var(--wood)"/><line x1="0" y1="0" x2="0" y2="6" class="hatch-line"/></pattern></defs>
+        <rect x="4" y="21" width="312" height="76" rx="34" class="b-base"/>
+        ${sym(70,17,48,8,'off',3)}
+        <rect x="118" y="15" width="84" height="12" rx="4" class="h-off"/>
+        ${sym(20,10,50,18,'jug',8)}
+        <text x="94" y="9" class="mm">35°</text><text x="226" y="9" class="mm">35°</text><text x="160" y="9" class="mm">20°</text>
+        ${sym(17,30,40,12,'-')}${sym(122,30,32,12,'-')}
+        ${sym(12,48,42,13,'p4')}${sym(64,48,21,13,'-')}${sym(93,48,33,13,'p32')}${R(135,48,50,13,'-')}
+        ${sym(36,71,47,13,'-')}${sym(92,71,22,13,'-')}${sym(122,71,32,13,'-')}
+        <rect x="34" y="89" width="252" height="4" rx="2" class="h-off"/>
+      </svg>
+      <div class="legend"><span><i class="l-on"></i>今日使う</span><span><i class="l-idle"></i>使わない段階</span><span><i class="l-off"></i>当面使わない(20°・35°スローパー、手前の薄いエッジ)</span></div>
+    </div>`;
+  }
+
+  const esc = t => String(t).replace(/[&<>"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
+  let last = null;
+
+  function render(){
+    const s = read();
+    save(s);
+    const r = build(s); last = r;
+    document.getElementById('bedHint').textContent = `開始から就寝まで ${dur(r.toBed)}`;
+
+    const hbLabel = {full:'4セット', short:'3セット', restart:'3セット', off:'なし'}[r.hb];
+    const SB = BOARDS[s.board] || BOARDS[s.homeBoard] || BOARDS.bm;
+    for (const k of ['jug','p4','p32']){
+      document.getElementById('st-'+k+'-n').textContent = SB.stage[k].label;
+      document.getElementById('st-'+k+'-s').textContent = SB.stage[k].sub;
+    }
+    const afterBed = r.toBed - r.total;
+    document.getElementById('summary').innerHTML = `
+      <span class="mode ${r.tone}">${esc(r.mode)}</span>
+      ${s.pain ? '<div class="alert">痛みが出たら即中止。違和感が数日続くなら、クライミング自体も休む判断を。</div>' : ''}
+      <div class="stats">
+        <div class="stat"><b>${Math.round(r.total)}<small style="font-size:12px">分</small></b><span>所要時間(目安)</span></div>
+        <div class="stat"><b>${hhmm(r.end)}</b><span>終了予定</span></div>
+        <div class="stat"><b>${hbLabel}</b><span>ハングボード</span></div>
+        <div class="stat"><b>${r.hbEnd!=null ? hhmm(r.hbEnd) : '—'}</b><span>ハング終了</span></div>
+      </div>
+      <ul class="reasons">${r.reasons.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>
+      ${afterBed < 0 ? '<p class="hint" style="color:var(--warn)">就寝時刻までに終わりません。クールダウンを優先して体幹を削ってください。</p>' : ''}`;
+
+    document.getElementById('menu').innerHTML = r.sections.map((sec, si) => {
+      const m = Math.round(sec.items.reduce((a,i)=>a+i.min,0));
+      const head = `<div class="sec-h"><span class="n">${si+1}/4</span><h2>${sec.title}</h2><span class="min">${sec.skip ? '休み' : '約'+m+'分'}</span></div>`;
+      if (sec.skip) return `<div class="sec skip">${head}<p class="skipnote">${esc(sec.skip)}</p></div>`;
+      const items = sec.items.map((i, ii) => {
+        const id = `${sec.title}-${i.name}`;
+        return `<li class="item ${done.has(id)?'done':''}" data-id="${esc(id)}"><button type="button" aria-pressed="${done.has(id)}">
+          <span class="box" aria-hidden="true"></span>
+          <span class="nm">${esc(i.name)}${i.tag?`<span class="tag">${esc(i.tag)}</span>`:''}</span>
+          <span class="dose">${esc(i.dose)}</span>
+          ${i.note?`<span class="note">${esc(i.note)}</span>`:''}
+        </button></li>`;
+      }).join('');
+      return `<div class="sec">${head}${sec.board?boardSVG(sec.boardKey, sec.board):''}<ul class="items">${items}</ul></div>`;
+    }).join('');
+  }
+
+  document.getElementById('menu').addEventListener('click', e => {
+    const li = e.target.closest('.item'); if (!li) return;
+    const id = li.dataset.id;
+    done.has(id) ? done.delete(id) : done.add(id);
+    li.classList.toggle('done', done.has(id));
+    li.querySelector('button').setAttribute('aria-pressed', done.has(id));
+  });
+
+  f.addEventListener('change', e => {
+    if (e.target.name === 'board' && e.target.value !== 'none') homeBoard = e.target.value;
+    if (e.target.name === 'place') {
+      const p = PRESETS[e.target.value];
+      f.board.value = p.board === 'home' ? homeBoard : p.board; f.pole.checked = p.pole; f.surface.value = p.surface;
+    } else syncPreset();
+    render();
+  });
+  f.addEventListener('submit', e => e.preventDefault());
+
+  document.getElementById('resetBtn').addEventListener('click', () => { done.clear(); render(); });
+
+  document.getElementById('copyBtn').addEventListener('click', () => {
+    if (!last) return;
+    const s = read();
+    const d = new Date();
+    const lines = [`【${d.getMonth()+1}/${d.getDate()} ${last.mode}】${s.start}開始・約${Math.round(last.total)}分${last.B ? '・' + last.B.name : ''}`];
+    last.sections.forEach(sec => {
+      lines.push(`■${sec.title}`);
+      if (sec.skip) lines.push(`・休み(${sec.skip})`);
+      sec.items.forEach(i => lines.push(`・${i.name} ${i.dose}${i.tag?'(任意)':''}`));
+    });
+    const text = lines.join('\n');
+    const toast = document.getElementById('toast');
+    const fall = document.getElementById('copyfall');
+    const fallback = () => { fall.hidden = false; fall.value = text; fall.focus(); fall.select(); toast.textContent = '下の欄を長押ししてコピーしてください'; };
+    try {
+      navigator.clipboard.writeText(text).then(() => { fall.hidden = true; toast.textContent = 'コピーしました'; setTimeout(()=>toast.textContent='', 2500); }, fallback);
+    } catch(e) { fallback(); }
+  });
+
+  apply(load());
+  render();
+})();
+</script>
+
+</body>
+</html>
